@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  compiler: {
+    // Garante que styled-components gere IDs/markup de forma consistente no SSR.
+    styledComponents: true,
+  },
 };
 
 export default nextConfig;

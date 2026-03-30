@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "skills": {
+    "apollo-client": {
+      "source": "apollographql/skills",
+      "sourceType": "github",
+      "computedHash": "8ab71f82de844ab647621df5b1e93761dd5aa3c3d341cceb13b106caad62f2cf"
+    },
+    "eslint-prettier-config": {
+      "source": "patricio0312rev/skills",
+      "sourceType": "github",
+      "computedHash": "ee512310dea918a546572bf6ea7e8d822d201ae0cdb4bada288772ff984ddb00"
+    },
+    "rust-best-practices": {
+      "source": "apollographql/skills",
+      "sourceType": "github",
+      "computedHash": "3f89cd417842ca60bffefea01ee88fc28116b75a8e69329c4d6db446fbfcad02"
+    },
+    "styled-components-best-practices": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "computedHash": "3d043776d1e0622eb58615c911f907eb8839cbaf39fcb01d6b1c6d0e2fee7313"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "e218e50fe7057a4db91390e579c7db5aafac2394c31a3d8e5fa9444c8fa00726"
+    }
+  }
+}

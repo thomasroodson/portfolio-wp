@@ -19,8 +19,8 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${jetBrainsMono.variable}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${jetBrainsMono.variable}`} suppressHydrationWarning>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

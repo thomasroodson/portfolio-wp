@@ -4,6 +4,7 @@ import { PortfolioPage } from "./PortfolioPage";
 import type { AboutSectionProps } from "./components/Portfolio/AboutSection";
 import type { ExpertiseSectionProps } from "./components/Portfolio/ExpertiseSection";
 import type { HeroProps } from "./components/Portfolio/Hero";
+import type { FooterProps } from "./components/Portfolio/Footer";
 import type { NavBarProps } from "./components/Portfolio/NavBar";
 import { createApolloClient } from "../lib/apolloServer";
 import type { ProjectCardProps } from "./components/Portfolio/ProjectCard";
@@ -31,6 +32,7 @@ type IndexPageProps = {
   hero: HeroProps;
   about: AboutSectionProps;
   expertise: ExpertiseSectionProps;
+  footer: FooterProps;
 };
 
 function resolveLogoSrc(rawLogoPath: string | null | undefined) {
@@ -147,11 +149,19 @@ export default async function Page() {
     skills: [],
   };
 
+  const defaultFooter: FooterProps = {
+    copyright: `© ${new Date().getFullYear()} Portfolio. Todos os direitos reservados.`,
+    tagline: "Construindo experiências web com atenção a performance e acessibilidade.",
+    githubHref: "#",
+    linkedinHref: "#",
+  };
+
   let props: IndexPageProps = {
     navBar: defaultNav,
     hero: defaultHero,
     about: defaultAbout,
     expertise: defaultExpertise,
+    footer: defaultFooter,
   };
 
   try {
@@ -242,6 +252,7 @@ export default async function Page() {
           expertiseSkills.length > 0 ? expertiseSkills : defaultExpertise.skills,
         ...(projectCards.length > 0 ? { projects: projectCards } : {}),
       },
+      footer: defaultFooter,
     };
   } catch (err) {
     // Mantém build/render estável caso o endpoint GraphQL esteja indisponível.
@@ -254,6 +265,7 @@ export default async function Page() {
       hero={props.hero}
       about={props.about}
       expertise={props.expertise}
+      footer={props.footer}
     />
   );
 }

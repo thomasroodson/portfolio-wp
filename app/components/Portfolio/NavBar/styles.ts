@@ -20,6 +20,12 @@ export const LogoImg = styled.img`
   width: auto;
 `;
 
+export const LinksGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.lg};
+`;
+
 export const Links = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.lg};
@@ -41,6 +47,7 @@ export const Link = styled.a<{ $active?: boolean }>`
 
   &:hover {
     color: ${({ theme }) => theme.colors.textPrimary};
+    text-decoration: none;
   }
 `;
 
@@ -58,6 +65,7 @@ export const ResumeButton = styled.a`
   background: rgba(30, 41, 59, 0.15);
 
   &:hover {
+    text-decoration: none;
     border-color: rgba(6, 182, 212, 0.7);
   }
 `;

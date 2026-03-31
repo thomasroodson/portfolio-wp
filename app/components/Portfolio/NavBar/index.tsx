@@ -1,4 +1,5 @@
 import { CloudDownload } from "lucide-react";
+import { LanguageSelect } from "./LanguageSelect";
 import type { NavBarProps } from "./types";
 import * as S from "./styles";
 
@@ -20,13 +21,16 @@ export function NavBar({
         {logoSrc ? <S.LogoImg src={logoSrc} alt="Logo" /> : null}
       </S.LogoWrap>
 
-      <S.Links>
-        {links.map((l) => (
-          <S.Link key={l.url} href={l.url} $active={l.url === activeUrl}>
-            {l.label}
-          </S.Link>
-        ))}
-      </S.Links>
+      <S.LinksGroup>
+        <S.Links>
+          {links.map((l) => (
+            <S.Link key={l.url} href={l.url} $active={l.url === activeUrl}>
+              {l.label}
+            </S.Link>
+          ))}
+        </S.Links>
+        <LanguageSelect />
+      </S.LinksGroup>
 
       <S.ResumeButton href={resumeHref}>
         <CloudDownload size={16} strokeWidth={2} aria-hidden="true" />

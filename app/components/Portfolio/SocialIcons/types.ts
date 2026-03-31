@@ -1,1 +1,4 @@
-export type SocialIconsProps = object;
+export type SocialIconsProps = {
+  githubHref?: string;
+  linkedinHref?: string;
+};

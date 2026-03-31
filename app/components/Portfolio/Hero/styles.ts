@@ -4,14 +4,14 @@ export const Outer = styled.section<{ $bgUrl?: string | null }>`
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  margin-bottom: -290px;
+  margin-bottom: -70px;
 
   background-color: #000;
   background-image: ${({ $bgUrl }) =>
     $bgUrl ? `url(${$bgUrl})` : "url(/bg_hero_thomasroodson.jpg)"};
   background-repeat: no-repeat;
   background-size: contain;
-  background-position: center top -30px;
+  background-position: center top;
 `;
 
 export const Wrapper = styled.div`

@@ -5,8 +5,10 @@ import { NavBar } from "./components/Portfolio/NavBar";
 import { Hero } from "./components/Portfolio/Hero";
 import { AboutSection } from "./components/Portfolio/AboutSection";
 import { ExpertiseSection } from "./components/Portfolio/ExpertiseSection";
+import { Footer } from "./components/Portfolio/Footer";
 import type { AboutSectionProps } from "./components/Portfolio/AboutSection";
 import type { ExpertiseSectionProps } from "./components/Portfolio/ExpertiseSection";
+import type { FooterProps } from "./components/Portfolio/Footer";
 import type { NavBarProps } from "./components/Portfolio/NavBar";
 import type { HeroProps } from "./components/Portfolio/Hero";
 
@@ -59,11 +61,13 @@ export function PortfolioPage({
   hero,
   about,
   expertise,
+  footer,
 }: {
   navBar?: NavBarProps;
   hero?: HeroProps;
   about: AboutSectionProps;
   expertise: ExpertiseSectionProps;
+  footer: FooterProps;
 }) {
   return (
     <Shell>
@@ -73,6 +77,7 @@ export function PortfolioPage({
         <Hero {...(hero ?? {})} />
         <AboutSection {...about} />
         <ExpertiseSection {...expertise} />
+        <Footer {...footer} />
       </Inner>
     </Shell>
   );

@@ -1,7 +1,11 @@
+import type { Metadata } from "next";
 import { createApolloClient } from "../../../lib/apolloServer";
-import { GET_PROJECT_BY_SLUG } from "../../../lib/wpQueries";
+import { mapProjetosToListItems } from "../../../lib/wpProjectMapper";
+import type { WpProjetosQueryData } from "../../../lib/wpGraphqlTypes";
+import { GET_PROJECT_BY_SLUG, GET_PROJETOS } from "../../../lib/wpQueries";
 
-export const revalidate = 2592000; // ISR mensal
+/** Só revalida via webhook (`revalidatePath`), não por intervalo. */
+export const revalidate = false;
 export const dynamicParams = true;
 
 type WpProjectBySlugQueryData = {
@@ -18,9 +22,51 @@ type WpProjectBySlugQueryData = {
 };
 
 export async function generateStaticParams() {
-  // Equivalente ao `getStaticPaths` com `fallback: 'blocking'`:
-  // não pré-gerar nada no build, mas permitir geração on-demand por slug.
-  return [];
+  try {
+    const client = createApolloClient();
+    const { data } = await client.query({ query: GET_PROJETOS });
+    const items = mapProjetosToListItems(
+      data as WpProjetosQueryData | null | undefined,
+    );
+    return items.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
+
+function excerptToPlain(excerpt: string | null | undefined) {
+  if (!excerpt) return undefined;
+  const plain = excerpt.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+  return plain || undefined;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const slug = String(params?.slug ?? "");
+  const fallbackTitle = slug.replace(/-/g, " ");
+
+  try {
+    const client = createApolloClient();
+    const result = await client.query({
+      query: GET_PROJECT_BY_SLUG,
+      variables: { slug },
+    });
+
+    const postBy =
+      (result.data as WpProjectBySlugQueryData | undefined)?.postBy ?? null;
+    const title = postBy?.title?.trim() || fallbackTitle;
+    const description = excerptToPlain(postBy?.excerpt ?? undefined);
+
+    return {
+      title,
+      ...(description ? { description } : {}),
+    };
+  } catch {
+    return { title: fallbackTitle };
+  }
 }
 
 export default async function ProjectDetailPage({
@@ -63,7 +109,14 @@ export default async function ProjectDetailPage({
 
   return (
     <main style={{ padding: 24, maxWidth: 980, margin: "0 auto" }}>
-      <h1 style={{ margin: 0, marginBottom: 16, fontSize: 32 }}>
+      <h1
+        style={{
+          margin: 0,
+          marginBottom: 16,
+          fontSize: "clamp(22px, 5.5vw, 32px)",
+          lineHeight: 1.15,
+        }}
+      >
         Project: {slug}
       </h1>
 

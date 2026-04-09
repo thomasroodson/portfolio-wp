@@ -109,7 +109,7 @@ export function ExpertiseSection({
 
         <RoleCard />
         <S.ProjectsHeader>
-          <S.ProjectsHeading>Projects</S.ProjectsHeading>
+          <S.ProjectsHeading>Projetos</S.ProjectsHeading>
           <S.ProjectsControls>
             <S.NavButton type="button" onClick={handlePrev} aria-label="Projetos anteriores">
               <ChevronLeft size={18} />
@@ -123,7 +123,7 @@ export function ExpertiseSection({
           <S.ProjectsViewport ref={emblaRef}>
             <S.ProjectsTrack>
               {carouselProjects.map((project, index) => (
-                <S.ProjectSlide key={`${project.title}-${index}`}>
+                <S.ProjectSlide key={project.href ?? `${project.title}-${index}`}>
                   <ProjectCard
                     imageUrl={project.imageUrl}
                     title={project.title}

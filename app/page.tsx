@@ -1,5 +1,6 @@
-// Em dev: mantenha comentado para usar ISR/cache da rota. Descomente para dados sempre frescos do WP.
-// import { unstable_noStore as noStore } from "next/cache";
+// Em dev: use `unstable_noStore` (next/cache) se precisar sempre dados frescos do WP.
+// Em produção: página estática; atualizações só via webhook (`revalidatePath` na API).
+import type { Metadata } from "next";
 import { PortfolioPage } from "./PortfolioPage";
 import type { AboutSectionProps } from "./components/Portfolio/AboutSection";
 import type { ExpertiseSectionProps } from "./components/Portfolio/ExpertiseSection";
@@ -7,11 +8,13 @@ import type { HeroProps } from "./components/Portfolio/Hero";
 import type { FooterProps } from "./components/Portfolio/Footer";
 import type { NavBarProps } from "./components/Portfolio/NavBar";
 import { createApolloClient } from "../lib/apolloServer";
-import type { ProjectCardProps } from "./components/Portfolio/ProjectCard";
+import { htmlToPlainText } from "../lib/htmlEntities";
+import { mapProjetosToCards } from "../lib/wpProjectMapper";
 import type {
   WpAboutMeQueryData,
   WpExpertiseSkillFields,
   WpExpertisesQueryData,
+  WpGeneralSettingsQueryData,
   WpHeroQueryData,
   WpNavbarLinkFields,
   WpNavbarQueryData,
@@ -19,13 +22,44 @@ import type {
 } from "../lib/wpGraphqlTypes";
 import {
   GET_ABOUT_ME,
+  GET_GENERAL_SETTINGS,
   GET_HERO,
   GET_MY_EXPERTISES,
   GET_NAVBAR,
   GET_PROJETOS,
 } from "../lib/wpQueries";
 
-export const revalidate = 2592000; // ISR mensal (com `noStore` desligado)
+/** Só revalida quando o webhook chamar `revalidatePath` (sem intervalo de tempo). */
+export const revalidate = false;
+
+const HOME_METADATA_FALLBACK: Metadata = {
+  title: "Thomas Roodson",
+  description: "Desenvolvedor Web",
+};
+
+/** Title/description do WordPress (`allSettings`) apenas na rota `/`. */
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const client = createApolloClient();
+    const { data } = await client.query<WpGeneralSettingsQueryData>({
+      query: GET_GENERAL_SETTINGS,
+    });
+
+    const title = data?.allSettings?.generalSettingsTitle?.trim();
+    const description = data?.allSettings?.generalSettingsDescription?.trim();
+
+    if (!title && !description) {
+      return HOME_METADATA_FALLBACK;
+    }
+
+    return {
+      title: title || HOME_METADATA_FALLBACK.title,
+      description: description || HOME_METADATA_FALLBACK.description,
+    };
+  } catch {
+    return HOME_METADATA_FALLBACK;
+  }
+}
 
 type IndexPageProps = {
   navBar: NavBarProps;
@@ -46,82 +80,7 @@ function resolveLogoSrc(rawLogoPath: string | null | undefined) {
   return `${apiBaseUrl}${rawLogoPath.startsWith("/") ? "" : "/"}${rawLogoPath}`;
 }
 
-function decodeHtmlEntities(input: string) {
-  return input
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) =>
-      String.fromCodePoint(Number.parseInt(hex, 16)),
-    )
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-}
-
-function htmlToPlainText(input: string | null | undefined) {
-  if (!input) return "";
-
-  const text = input
-    .replace(/<br\s*\/?>\s*/gi, "\n")
-    .replace(/<\/p>/gi, "\n\n")
-    .replace(/<p[^>]*>/gi, "")
-    .replace(/<[^>]+>/g, "");
-
-  return decodeHtmlEntities(text).replace(/\n{2,}/g, "\n").trim();
-}
-
-function removeDeveloperBlock(input: string) {
-  return input
-    .replace(/^\s*const\s+developer\s*=\s*\{[\s\S]*?\};\s*/m, "")
-    .trim();
-}
-
-const PLACEHOLDER_PROJECT_IMAGE =
-  "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=60";
-
-function wpUriToProjectHref(uri: string | null | undefined): string | undefined {
-  if (!uri) return undefined;
-  const trimmed = uri.replace(/^\/+|\/+$/g, "");
-  const segments = trimmed.split("/").filter(Boolean);
-  const slug = segments[segments.length - 1];
-  if (!slug) return undefined;
-  return `/projects/${slug}`;
-}
-
-function mapProjetosToCards(
-  data: WpProjetosQueryData | null | undefined,
-  toPlain: (html: string | null | undefined) => string,
-): ProjectCardProps[] {
-  const edges = data?.projetos?.edges ?? [];
-  const cards: ProjectCardProps[] = [];
-
-  for (const edge of edges) {
-    const node = edge?.node;
-    if (!node?.title) continue;
-
-    const rawUrl = node.featuredImage?.node?.mediaItemUrl?.trim();
-    const imageUrl = rawUrl || PLACEHOLDER_PROJECT_IMAGE;
-
-    const rawDesc = node.camposprojeto?.pequenaDescricao ?? "";
-    const details = toPlain(rawDesc) || rawDesc.replace(/<[^>]+>/g, "").trim() || "—";
-
-    const href = wpUriToProjectHref(node.uri);
-    const card: ProjectCardProps = {
-      imageUrl,
-      title: String(node.title),
-      details,
-      ctaLabel: "Ver projeto",
-    };
-    if (href) card.href = href;
-    cards.push(card);
-  }
-
-  return cards;
-}
-
 export default async function Page() {
-  // noStore();
 
   const defaultNav: NavBarProps = {
     links: [],
@@ -150,8 +109,12 @@ export default async function Page() {
   };
 
   const defaultFooter: FooterProps = {
+    brandName: "Thomas Roodson",
+    logoSrc: null,
+    navLinks: [],
     copyright: `© ${new Date().getFullYear()} Portfolio. Todos os direitos reservados.`,
-    tagline: "Construindo experiências web com atenção a performance e acessibilidade.",
+    facebookHref: "#",
+    instagramHref: "#",
     githubHref: "#",
     linkedinHref: "#",
   };
@@ -167,14 +130,21 @@ export default async function Page() {
   try {
     const client = createApolloClient();
 
-    const [navbarResult, heroResult, aboutResult, expertiseResult, projetosResult] =
-      await Promise.all([
-        client.query({ query: GET_NAVBAR }),
-        client.query({ query: GET_HERO }),
-        client.query({ query: GET_ABOUT_ME }),
-        client.query({ query: GET_MY_EXPERTISES }),
-        client.query({ query: GET_PROJETOS }),
-      ]);
+    const [
+      navbarResult,
+      heroResult,
+      aboutResult,
+      expertiseResult,
+      projetosResult,
+      settingsResult,
+    ] = await Promise.all([
+      client.query({ query: GET_NAVBAR }),
+      client.query({ query: GET_HERO }),
+      client.query({ query: GET_ABOUT_ME }),
+      client.query({ query: GET_MY_EXPERTISES }),
+      client.query({ query: GET_PROJETOS }),
+      client.query<WpGeneralSettingsQueryData>({ query: GET_GENERAL_SETTINGS }),
+    ]);
 
     const navbarData = navbarResult.data as WpNavbarQueryData | null | undefined;
     const heroData = heroResult.data as WpHeroQueryData | null | undefined;
@@ -183,6 +153,7 @@ export default async function Page() {
       expertiseResult.data as WpExpertisesQueryData | null | undefined;
     const projetosData =
       projetosResult.data as WpProjetosQueryData | null | undefined;
+    const settingsData = settingsResult.data as WpGeneralSettingsQueryData | null | undefined;
 
     const rawLinks = navbarData?.navbar?.campos?.links ?? [];
     const links = rawLinks
@@ -206,8 +177,8 @@ export default async function Page() {
 
     const title = aboutData?.aboutMe?.camposAboutMe?.titulo ?? null;
     const fileLabel = aboutData?.aboutMe?.camposAboutMe?.subtitulo ?? null;
-    const descriptionText = removeDeveloperBlock(
-      htmlToPlainText(aboutData?.aboutMe?.camposAboutMe?.descricao),
+    const descriptionText = htmlToPlainText(
+      aboutData?.aboutMe?.camposAboutMe?.descricao,
     );
 
     const camposExpertises = expertiseData?.myExpertises?.camposExpertises;
@@ -225,6 +196,9 @@ export default async function Page() {
       }));
 
     const projectCards = mapProjetosToCards(projetosData, htmlToPlainText);
+
+    const brandName =
+      settingsData?.allSettings?.generalSettingsTitle?.trim() || defaultFooter.brandName;
 
     props = {
       navBar: {
@@ -252,7 +226,12 @@ export default async function Page() {
           expertiseSkills.length > 0 ? expertiseSkills : defaultExpertise.skills,
         ...(projectCards.length > 0 ? { projects: projectCards } : {}),
       },
-      footer: defaultFooter,
+      footer: {
+        ...defaultFooter,
+        brandName,
+        logoSrc,
+        navLinks: links,
+      },
     };
   } catch (err) {
     // Mantém build/render estável caso o endpoint GraphQL esteja indisponível.

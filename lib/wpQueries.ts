@@ -1,5 +1,14 @@
 import { gql } from "@apollo/client";
 
+export const GET_GENERAL_SETTINGS = gql`
+  query getGeneralSettings {
+    allSettings {
+      generalSettingsTitle
+      generalSettingsDescription
+    }
+  }
+`;
+
 export const GET_NAVBAR = gql`
   query getNavbar {
     navbar {
@@ -68,11 +77,15 @@ export const GET_MY_EXPERTISES = gql`
 
 export const GET_PROJETOS = gql`
   query getProjetos {
-    projetos(first: 100) {
+    projetos(
+      first: 100
+      where: { orderby: { field: DATE, order: DESC } }
+    ) {
       edges {
         node {
           id
           title
+          slug
           uri
           featuredImage {
             node {
@@ -88,7 +101,7 @@ export const GET_PROJETOS = gql`
   }
 `;
 
-// Scaffold (schema do WP GraphQL pode variar). Mantido com fallback no getStaticProps.
+// Scaffold (schema do WP GraphQL pode variar). Usado em `app/projects/[slug]/page.tsx` (SSG + revalidate on-demand).
 export const GET_PROJECT_BY_SLUG = gql`
   query getProjectBySlug($slug: String!) {
     postBy(slug: $slug) {

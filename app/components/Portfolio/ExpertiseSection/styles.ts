@@ -34,10 +34,17 @@ export const MyExpertise = styled.h3`
   margin: 0;
   text-align: center;
   font-size: ${({ theme }) => theme.fontSize.xl};
+  line-height: 1.15;
   font-weight: 900;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 
   color: ${({ theme }) => theme.colors.textPrimary};
+
+  @media (max-width: 899px) {
+    font-size: ${({ theme }) => theme.fontSize.lg};
+    line-height: 1.12;
+  }
 `;
 
 export const Subtitle = styled.p`
@@ -47,6 +54,10 @@ export const Subtitle = styled.p`
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: ${({ theme }) => theme.fontSize.sm};
   line-height: 1.5;
+
+  @media (max-width: 899px) {
+    line-height: 1.28;
+  }
 `;
 
 export const Grid = styled.div`
@@ -92,6 +103,12 @@ export const SkillTitle = styled.span`
   color: ${({ theme }) => theme.colors.textPrimary};
   font-weight: 700;
   line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  @media (max-width: 899px) {
+    line-height: 1.22;
+  }
 `;
 
 export const SkillDescription = styled.p`
@@ -100,6 +117,10 @@ export const SkillDescription = styled.p`
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: ${({ theme }) => theme.fontSize.xs};
   line-height: 1.55;
+
+  @media (max-width: 899px) {
+    line-height: 1.45;
+  }
 `;
 
 export const Dot = styled.span<{ $color: string }>`
@@ -129,6 +150,10 @@ export const ProjectsViewport = styled.div`
 export const ProjectsTrack = styled.div`
   display: flex;
   margin-left: -${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: 899px) {
+    margin-left: 0;
+  }
 `;
 
 export const ProjectSlide = styled.div`
@@ -148,8 +173,15 @@ export const ProjectsHeading = styled.h3`
   margin: 0;
   color: ${({ theme }) => theme.colors.textPrimary};
   font-size: ${({ theme }) => theme.fontSize.xl};
+  line-height: 1.15;
   font-weight: 900;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  @media (max-width: 899px) {
+    font-size: ${({ theme }) => theme.fontSize.lg};
+    line-height: 1.12;
+  }
 `;
 
 export const ProjectsHeader = styled.div`

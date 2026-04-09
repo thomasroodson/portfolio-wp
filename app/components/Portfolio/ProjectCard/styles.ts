@@ -78,11 +78,17 @@ export const Title = styled.h4`
   color: ${({ theme }) => theme.colors.textPrimary};
   font-size: clamp(24px, 2.5vw, 44px);
   line-height: 1.05;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+
+  @media (max-width: 899px) {
+    font-size: clamp(17px, 4.8vw, 28px);
+    line-height: 1;
+  }
 `;
 
 export const Details = styled.p`
@@ -94,6 +100,10 @@ export const Details = styled.p`
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+
+  @media (max-width: 899px) {
+    line-height: 1.4;
+  }
 `;
 
 export const ActionRow = styled.div`

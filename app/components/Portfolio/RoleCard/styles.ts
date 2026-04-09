@@ -40,6 +40,13 @@ export const Title = styled.h4`
   color: ${({ theme }) => theme.colors.textPrimary};
   font-size: ${({ theme }) => theme.fontSize.lg};
   line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  @media (max-width: 899px) {
+    font-size: ${({ theme }) => theme.fontSize.md};
+    line-height: 1.15;
+  }
 `;
 
 export const Subtext = styled.p`
@@ -47,6 +54,10 @@ export const Subtext = styled.p`
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: ${({ theme }) => theme.fontSize.md};
   line-height: 1.7;
+
+  @media (max-width: 899px) {
+    line-height: 1.55;
+  }
 `;
 
 export const TagsRow = styled.div`

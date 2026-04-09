@@ -12,9 +12,7 @@ export function AboutSection({
   descriptionText,
 }: AboutSectionProps) {
   const normalizedDescription = descriptionText.trim();
-  const code = normalizedDescription
-    ? `${ABOUT_DEVELOPER_CODE}\n\n${normalizedDescription}`
-    : ABOUT_DEVELOPER_CODE;
+  const code = normalizedDescription || ABOUT_DEVELOPER_CODE;
 
   return (
     <S.Wrapper id="about">
@@ -24,7 +22,8 @@ export function AboutSection({
           <S.CodeFrame>
             <S.CodeHeader>
               <S.CodeHeaderLeft>
-                <S.CodeHeaderLang>JS</S.CodeHeaderLang> {fileLabel}
+                <S.CodeHeaderLang>JS</S.CodeHeaderLang>
+                <S.CodeHeaderFile title={fileLabel}>{fileLabel}</S.CodeHeaderFile>
               </S.CodeHeaderLeft>
               <S.CodeHeaderClose>x</S.CodeHeaderClose>
             </S.CodeHeader>

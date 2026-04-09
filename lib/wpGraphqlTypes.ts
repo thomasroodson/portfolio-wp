@@ -1,3 +1,12 @@
+/** Tipos alinhados a `GET_GENERAL_SETTINGS` em `lib/wpQueries.ts`. */
+
+export type WpGeneralSettingsQueryData = {
+  allSettings?: {
+    generalSettingsTitle?: string | null;
+    generalSettingsDescription?: string | null;
+  } | null;
+};
+
 /** Tipos alinhados a `GET_NAVBAR` em `lib/wpQueries.ts` (campo `data` da resposta Apollo). */
 
 export type WpNavbarLinkFields = {
@@ -70,6 +79,7 @@ export type WpExpertisesQueryData = {
 export type WpProjetoNodeFields = {
   id?: string | null;
   title?: string | null;
+  slug?: string | null;
   uri?: string | null;
   featuredImage?: {
     node?: {
